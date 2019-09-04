@@ -11,6 +11,9 @@ const RoomDataService = {
         return rows[0]
       })
   },
+  dataByRoom(knex, id) {
+    return knex.from('room_data').select('*').where('room_id', id)
+  },
   deleteData(knex, id) {
     return knex('room_data')
       .where({ id })

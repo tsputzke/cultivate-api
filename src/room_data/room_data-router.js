@@ -3,40 +3,40 @@ const xss = require('xss')
 const RoomDataService = require('./room_data-service')
 const path = require('path')
 
-const RoomDataRouter = express.Router()
+const roomDataRouter = express.Router()
 const jsonParser = express.json()
 
 const serializeData = data => ({
-  id: data.id,
   room_id: data.room_id,
   date_added: data.date_added,
   temperature: data.temperature,
   rh: data.rh,
   co2: data.co2,
   light: data.light,
-  comments: date.comments,
+  comments: data.comments
 })
 
-RoomDataRouter
+roomDataRouter
   .route('/')
   .get((req, res, next) => {
-    const knexInstance = req.app.get('db')
-    RoomDataService
-  .getAllData(knexInstance)
-      .then(folders => {
-        res.json(folders.map(serializeData))
-      })
-      .catch(next)
+    res.send('RoomDataRouter')
   })
-//   .post(jsonParser, (req, res, next) => {
-//     const { folder_name } = req.body
-//     const newfolder = { folder_name }
-
-//     for (const [key, value] of Object.entries(newfolder))
-//       if (value == null)
-//         return res.status(400).json({
-//           error: { message: `Missing '${key}' in request body` }
-//         })
+  .post(jsonParser, (req, res, next) => {
+    const { room_id, date_added, temperature, rh, co2, light, comments } = req.body;
+    const newData = { room_id, date_added, temperature, rh, co2, light, comments };
+      
+    RoomDataService
+      .addData(
+        req.app.get('db'),
+        newData
+      )
+        .then(room_data => (
+          res 
+            .status(201)
+            .json(serializeData(room_data))
+        ))
+        .catch(next)
+  })
 
 //     FoldersService
 //   .insertFolder(
@@ -110,4 +110,22 @@ RoomDataRouter
 //       .catch(next)
 //     })
 
-module.exports = RoomDataRouter
+roomDataRouter
+    .route('/:room_id')
+    .all((req, res, next) => {
+      RoomDataService
+    .dataByRoom(
+        req.app.get('db'),
+        req.params.room_id
+      )
+        .then(data => {
+          res.data = data
+          next() 
+        })
+        .catch(next)
+    })
+    .get((req, res) => {
+      res.json(res.data)
+    })
+
+module.exports = roomDataRouter
