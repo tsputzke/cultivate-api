@@ -19,7 +19,7 @@ CREATE TABLE rooms (
 
 CREATE TABLE room_data (
     room_id INTEGER REFERENCES rooms(room_id),
-    -- date_added TIMESTAMP DEFAULT now() NOT NULL,
+    date_added TEXT NOT NULL,
     temperature INTEGER,
     rh INTEGER,
     co2 INTEGER,
