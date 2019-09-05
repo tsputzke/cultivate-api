@@ -38,78 +38,6 @@ roomDataRouter
         .catch(next)
   })
 
-//     FoldersService
-//   .insertFolder(
-//       req.app.get('db'),
-//       newfolder
-//     )
-//       .then(folder => {
-//         res
-//           .status(201)
-//           .location(path.posix.join(req.originalUrl, `/${folder.id}`))
-//           .json(serializeFolder(folder))
-//       })
-//       .catch(next)
-//   })
-
-// foldersRouter
-//   .route('/:folder_id')
-//   .all((req, res, next) => {
-//     FoldersService
-//   .getById(
-//       req.app.get('db'),
-//       req.params.folder_id
-//     )
-//       .then(folder => {
-//         if (!folder) {
-//           return res.status(404).json({
-//             error: { message: `folder doesn't exist` }
-//           })
-//         }
-//         res.folder = folder // save the folder for the next middleware
-//         next() // don't forget to call next so the next middleware happens!
-//       })
-//       .catch(next)
-//   })
-//   .get((req, res, next) => {
-//     res.json(serializeFolder(res.folder))
-//   })
-//   .delete((req, res, next) => {
-//     FoldersService
-//   .deleteFolder(
-//       req.app.get('db'),
-//       req.params.folder_id
-//     )
-//       .then(numRowsAffected => {
-//         res.status(204).end()
-//       })
-//       .catch(next)
-//     })
-//   .patch(jsonParser, (req, res, next) => {
-//     const { folder_name } = req.body
-//     const folderToUpdate = { folder_name }
-
-//     const numberOfValues = Object.values(folderToUpdate).filter(Boolean).length
-//     if (numberOfValues === 0) {
-//       return res.status(400).json({
-//         error: {
-//           message: `Request body must contain 'folder_name'`
-//         }
-//       })
-//     }
-
-//     FoldersService
-//   .updateFolder(
-//       req.app.get('db'),
-//       req.params.folder_id,
-//       folderToUpdate
-//     )
-//       .then(numRowsAffected => {
-//         res.status(204).end()
-//       })
-//       .catch(next)
-//     })
-
 roomDataRouter
     .route('/:room_id')
     .all((req, res, next) => {
@@ -124,8 +52,17 @@ roomDataRouter
         })
         .catch(next)
     })
-    .get((req, res) => {
-      res.json(res.data)
+    .get((req, res, next) => {
+      res.send(res.data)
+      // res.json(serializeData(res.data))
     })
+    // .post(jsonParser, (req, res, next) => {
+    //   const { user_name, password } = req.body;
+    //   const checkUser = { user_name, password };
+        
+    //   console.log(checkUser)
+      
+    //   res.send(checkUser)    
+    // })
 
 module.exports = roomDataRouter
