@@ -1,5 +1,4 @@
 const express = require('express')
-const xss = require('xss')
 const RoomsService = require('./rooms-service')
 const path = require('path')
 

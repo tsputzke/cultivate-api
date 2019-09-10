@@ -1,51 +1,54 @@
 const express = require('express')
-const xss = require('xss')
 const UsersService = require('./users-service')
 const path = require('path')
 
 const usersRouter = express.Router()
-const jsonParser = express.json()
-
-const serializeUser = user => ({
-  id: user.id,
-  user_name: user.user_name,
-  password: user.password,
-})
+const jsonBodyParser = express.json()
 
 // Routes (get/post) for getting all users, posting new user
 usersRouter
-  .route('/')
-  .get((req, res, next) => {
-    const knexInstance = req.app.get('db')
-    UsersService
-  .getAllUsers(knexInstance)
-      .then(users => {
-        res.json(users.map(serializeUser))
-      })
-      .catch(next)
-  })
-  .post(jsonParser, (req, res, next) => {
+  .post('/', jsonBodyParser, (req, res, next) => {
     const { user_name, password } = req.body;
-    const newUser = { user_name, password };
       
-    for (const [key, value] of Object.entries(newUser))
-      if (value == null)
+    for (const field of ['user_name', 'password'])
+      if (!req.body[field])
         return res.status(400).json({
-          error: { message: `Missing '${key}' in request body` }
+          error: `Missing '${field}' in request body`
         })
       
-    UsersService
-      .addUser(
+    const passwordError = UsersService.validatePassword(password)
+
+    if (passwordError)
+      return res.status(400).json({ error: passwordError }) 
+
+    UsersService.hasUsername(
         req.app.get('db'),
-        newUser
-      )
-        .then(user => (
-          res 
-            .status(201)
-            .location(path.posix.join(req.originalUrl, `/${user.id}`))
-            .json(serializeUser(user))
-        ))
-        .catch(next)
+        user_name
+    )
+    .then(hasUsername => {
+      if (hasUsername)
+        return res.status(400).json({ error: `Username is already taken` })
+
+      return UsersService.hashPassword(password)
+        .then(hashedPassword => {
+          const newUser = {
+            user_name,
+            password: hashedPassword
+          }
+
+          return UsersService.addUser(
+            req.app.get('db'),
+            newUser
+          )
+            .then(user => {
+              res
+                .status(201)
+                .location(path.posix.join(req.originalUrl, `/${user.id}`))
+                .json(UsersService.serializeUser(user))
+            })
+        })
+    })
+    .catch(next)
   })
 
 usersRouter
@@ -70,7 +73,7 @@ usersRouter
   .get((req, res, next) => {
     res.json(serializeUser(res.user))
   })
-  .post(jsonParser, (req, res, next) => {
+  .post(jsonBodyParser, (req, res, next) => {
     const { user_name, password } = req.body;
     const checkUser = { user_name, password };
       
