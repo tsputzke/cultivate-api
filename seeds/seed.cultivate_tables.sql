@@ -8,12 +8,12 @@ TRUNCATE
 
 INSERT INTO cultivate_users (user_name, password)
 VALUES
-  ('aliasA', 'Mifflin'),
-  ('aliasB', 'Bo'),
-  ('AliasC', 'Charlie'),
-  ('AliasD', 'Sam'),
-  ('AliasE', 'Lex'),
-  ('AliasF', 'Ping');
+  ('aliasA', 'Mifflin15%'),
+  ('aliasB', 'BoBoBo15%'),
+  ('AliasC', 'Charlie15%'),
+  ('AliasD', 'SamSam15%'),
+  ('AliasE', 'LexLex15%'),
+  ('AliasF', 'PingPing15%');
 
 INSERT INTO rooms (user_id, room_name, room_description)
 VALUES

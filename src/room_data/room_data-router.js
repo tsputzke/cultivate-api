@@ -1,7 +1,6 @@
 const express = require('express')
-const xss = require('xss')
 const RoomDataService = require('./room_data-service')
-const path = require('path')
+const { requireAuth } = require('../middleware/jwt-auth')
 
 const roomDataRouter = express.Router()
 const jsonParser = express.json()
@@ -18,6 +17,7 @@ const serializeData = data => ({
 
 roomDataRouter
   .route('/')
+  .all(requireAuth)
   .get((req, res, next) => {
     res.send('RoomDataRouter')
   })
@@ -40,6 +40,7 @@ roomDataRouter
 
 roomDataRouter
     .route('/:room_id')
+    .all(requireAuth)
     .all((req, res, next) => {
       RoomDataService
     .dataByRoom(
@@ -56,13 +57,47 @@ roomDataRouter
       res.send(res.data)
       // res.json(serializeData(res.data))
     })
-    // .post(jsonParser, (req, res, next) => {
-    //   const { user_name, password } = req.body;
-    //   const checkUser = { user_name, password };
-        
-    //   console.log(checkUser)
-      
-    //   res.send(checkUser)    
-    // })
+    .delete((req, res, next) => {
+      RoomDataService
+    .deleteRoom(
+      req.app.get('db'),
+      req.params.room_id
+    )
+      .then(numRowsAffected => {
+        res.status(204).end()
+      })
+      .catch(next)
+    })
+
+  // roomDataRouter
+  //   .route('/data/:room_data_id')
+  //   .all(requireAuth)
+  //   .all((req, res, next) => {
+  //     RoomDataService
+  //   .getById(
+  //       req.app.get('db'),
+  //       req.params.room_data_id
+  //     )
+  //       .then(data => {
+  //         res.data = data
+  //         next() 
+  //       })
+  //       .catch(next)
+  //   })
+  //   .get((req, res, next) => {
+  //     res.send(res.data)
+  //   })
+  //   .delete((req, res, next) => {
+  //     RoomDataService
+  //   .deleteById(
+  //     req.app.get('db'),
+  //     req.params.room_data_id
+  //   )
+  //     .then(data => {
+  //       res.data = data
+  //       next() 
+  //     })
+  //     .catch(next)
+  //   })
 
 module.exports = roomDataRouter

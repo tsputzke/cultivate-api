@@ -1,6 +1,7 @@
 const express = require('express')
 const RoomsService = require('./rooms-service')
 const path = require('path')
+const { requireAuth } = require('../middleware/jwt-auth')
 
 const roomsRouter = express.Router()
 const jsonParser = express.json()
@@ -12,7 +13,7 @@ const serializeRoom = room => ({
   room_description: room.room_description,
 })
 
-// Routes (get/post) for getting all users, posting new user
+// Routes (get/post) for getting all rooms, posting new room
 roomsRouter
   .route('/')
   .get((req, res, next) => {
@@ -24,9 +25,21 @@ roomsRouter
       })
       .catch(next)
   })
-  .post(jsonParser, (req, res, next) => {
+  .post(requireAuth, jsonParser, (req, res, next) => {
     const { room_name, room_description } = req.body;
     const newRoom = { room_name, room_description };
+
+    console.log(req.body)
+
+    for (const [key, value] of Object.entries(newRoom)) {
+      if (value == null) {
+        return res.status(400).json({
+          error: `Missing '${key}' in request body`
+        })
+      }
+    }
+
+    newRoom.user_id = req.body.user_id
       
     RoomsService
       .addRoom(
@@ -42,10 +55,10 @@ roomsRouter
         .catch(next)
   })
 
-  // SHOULD THIS BE PART OF '/' ROUTE, ABOVE??
   // Responds to client with all rooms belonging to a user, based on their user_id
   roomsRouter
     .route('/:user_id')
+    .all(requireAuth)
     .all((req, res, next) => {
       RoomsService
     .roomByUser(

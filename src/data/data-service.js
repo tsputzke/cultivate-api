@@ -1,4 +1,4 @@
-const RoomDataService = {
+const DataService = {
   getAllData(knex) {
     return knex.select('*').from('room_data')
   },
@@ -29,12 +29,12 @@ const RoomDataService = {
       .where('room_id', id)
       .delete()
   },
-  // getById(knex, id) {
-  //   return knex.from('room_data').select('*').where('room_data_id', id).first()
-  // },
-  // deleteById(knex, id) {
-  //   return knex.from('room_data').select('*').where('room_data_id', id).first().delete()
-  // },
+  getById(knex, id) {
+    return knex.from('room_data').select('*').where('room_data_id', id).first()
+  },
+  deleteById(knex, id) {
+    return knex.from('room_data').select('*').where('room_data_id', id).first().delete()
+  },
 }
 
-module.exports = RoomDataService
+module.exports = DataService
