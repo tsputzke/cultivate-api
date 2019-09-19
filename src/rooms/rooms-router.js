@@ -13,7 +13,7 @@ const serializeRoom = room => ({
   room_description: room.room_description,
 })
 
-// Routes (get/post) for getting all rooms, posting new room
+// Add room
 roomsRouter
   .route('/')
   .get((req, res, next) => {
@@ -28,8 +28,6 @@ roomsRouter
   .post(requireAuth, jsonParser, (req, res, next) => {
     const { room_name, room_description } = req.body;
     const newRoom = { room_name, room_description };
-
-    console.log(req.body)
 
     for (const [key, value] of Object.entries(newRoom)) {
       if (value == null) {
@@ -49,30 +47,44 @@ roomsRouter
         .then(room => (
           res 
             .status(201)
-            .location(path.posix.join(req.originalUrl, `/${room.room_id}`))
+            // .location(path.posix.join(req.originalUrl, `/${room.room_id}`))
             .json(serializeRoom(room))
         ))
         .catch(next)
   })
-
-  // Responds to client with all rooms belonging to a user, based on their user_id
+  
+  // Get Room data/ Delete room, by room_id
   roomsRouter
-    .route('/:user_id')
+    .route('/:room_id')
     .all(requireAuth)
     .all((req, res, next) => {
       RoomsService
-    .roomByUser(
-        req.app.get('db'),
-        req.params.user_id
-      )
-        .then(rooms => {
-          res.rooms = rooms
-          next() 
-        })
-        .catch(next)
+    .dataByRoom(
+      req.app.get('db'),
+      req.params.room_id
+    )
+      .then(data => {
+        res.data = data
+        next() 
+      })
+      .catch(next)
     })
-    .get((req, res) => {
-      res.json(res.rooms)
+    .get((req, res, next) => {
+      res.send(res.data)
+      // res.json(serializeData(res.data))
     })
+
+    .delete((req, res, next) => {
+      RoomsService
+    .deleteRoom(
+      req.app.get('db'),
+      req.params.room_id
+    )
+      .then(numRowsAffected => {
+        res.status(204).end()
+      })
+      .catch(next)
+    })
+
 
 module.exports = roomsRouter

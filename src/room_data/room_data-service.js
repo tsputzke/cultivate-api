@@ -11,30 +11,12 @@ const RoomDataService = {
         return rows[0]
       })
   },
-  dataByRoom(knex, id) {
-    return knex
-      .from('room_data')
-      .select('*')
-      .where('room_id', id)
-      .orderBy('date_added', 'asc')
-      .orderBy('room_id', 'asc')
+  getById(knex, id) {
+    return knex.from('room_data').select('*').where('room_data_id', id).first()
   },
-  deleteData(knex, id) {
-    return knex('room_data')
-      .where({ id })
-      .delete()
+  deleteById(knex, id) {
+    return knex.from('room_data').select('*').where('room_data_id', id).first().delete()
   },
-  deleteRoom(knex, id) {
-    return knex('rooms')
-      .where('room_id', id)
-      .delete()
-  },
-  // getById(knex, id) {
-  //   return knex.from('room_data').select('*').where('room_data_id', id).first()
-  // },
-  // deleteById(knex, id) {
-  //   return knex.from('room_data').select('*').where('room_data_id', id).first().delete()
-  // },
 }
 
 module.exports = RoomDataService

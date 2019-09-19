@@ -7,17 +7,20 @@ const RoomsService = {
       .insert(newRoom)
       .into('rooms')
   },
-  checkForRoom(knex, name) {
-    return knex.from('rooms').select('*').where('user_name', name).first()
-  },
-  roomByUser(knex, id) {
-    return knex.from('rooms').select('*').where('user_id', id)
+  dataByRoom(knex, id) {
+    return knex
+      .from('room_data')
+      .select('*')
+      .where('room_id', id)
+      .orderBy('date_added', 'asc')
+      .orderBy('room_id', 'asc')
   },
   deleteRoom(knex, id) {
     return knex('rooms')
-      .where({ id })
+      .where('room_id', id)
       .delete()
   },
 }
 
 module.exports = RoomsService
+

@@ -1,26 +1,30 @@
 const express = require('express')
 const UsersService = require('./users-service')
 const path = require('path')
+const { requireAuth } = require('../middleware/jwt-auth')
 
 const usersRouter = express.Router()
 const jsonBodyParser = express.json()
 
-// Routes (get/post) for getting all users, posting new user
+// Route to post new user
 usersRouter
   .post('/', jsonBodyParser, (req, res, next) => {
     const { user_name, password } = req.body;
       
+    // Check request for user_name and password
     for (const field of ['user_name', 'password'])
       if (!req.body[field])
         return res.status(400).json({
           error: `Missing '${field}' in request body`
         })
       
+    // Validate password
     const passwordError = UsersService.validatePassword(password)
 
     if (passwordError)
       return res.status(400).json({ error: passwordError }) 
 
+    // Check is user_name is taken
     UsersService.hasUsername(
         req.app.get('db'),
         user_name
@@ -51,35 +55,24 @@ usersRouter
     .catch(next)
   })
 
-usersRouter
-  .route('/:user_name')
-  .all((req, res, next) => {
-    UsersService
-  .checkForUser(
-      req.app.get('db'),
-      req.params.user_name
-    )
-      .then(user => {
-        if (!user) {
-          return res.status(404).json({
-            error: { message: `user doesn't exist` }
-          })
-        }
-        res.user = user 
-        next() 
-      })
-      .catch(next)
-  })
-  .get((req, res, next) => {
-    res.json(serializeUser(res.user))
-  })
-  .post(jsonBodyParser, (req, res, next) => {
-    const { user_name, password } = req.body;
-    const checkUser = { user_name, password };
-      
-    console.log(checkUser)
-    
-    res.send(checkUser)    
-  })
+  // Get all rooms belonging to a user, by user_id
+  usersRouter
+    .route('/:user_id')
+    .all(requireAuth)
+    .all((req, res, next) => {
+      UsersService
+    .roomsByUser(
+        req.app.get('db'),
+        req.params.user_id
+      )
+        .then(rooms => {
+          res.rooms = rooms
+          next() 
+        })
+        .catch(next)
+    })
+    .get((req, res) => {
+      res.json(res.rooms)
+    })
 
 module.exports = usersRouter

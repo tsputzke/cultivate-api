@@ -15,16 +15,22 @@ const serializeData = data => ({
   comments: data.comments
 })
 
+// Add room-data
 roomDataRouter
   .route('/')
-  .all(requireAuth)
   .get((req, res, next) => {
-    res.send('RoomDataRouter')
+    const knexInstance = req.app.get('db')
+    RoomDataService
+  .getAllData(knexInstance)
+      .then(data => {
+        res.json(data.map(serializeData))
+      })
+      .catch(next)
   })
-  .post(jsonParser, (req, res, next) => {
+  .post(requireAuth, jsonParser, (req, res, next) => {
     const { room_id, date_added, temperature, rh, co2, light, comments } = req.body;
     const newData = { room_id, date_added, temperature, rh, co2, light, comments };
-      
+
     RoomDataService
       .addData(
         req.app.get('db'),
@@ -38,14 +44,16 @@ roomDataRouter
         .catch(next)
   })
 
-roomDataRouter
-    .route('/:room_id')
+  // Delete room-data
+  roomDataRouter
+    .route('/:room_data_id')
     .all(requireAuth)
     .all((req, res, next) => {
       RoomDataService
-    .dataByRoom(
+
+    .getById(
         req.app.get('db'),
-        req.params.room_id
+        req.params.room_data_id
       )
         .then(data => {
           res.data = data
@@ -55,49 +63,17 @@ roomDataRouter
     })
     .get((req, res, next) => {
       res.send(res.data)
-      // res.json(serializeData(res.data))
     })
     .delete((req, res, next) => {
       RoomDataService
-    .deleteRoom(
+    .deleteById(
       req.app.get('db'),
-      req.params.room_id
+      req.params.room_data_id
     )
-      .then(numRowsAffected => {
+      .then(data => {
         res.status(204).end()
       })
       .catch(next)
     })
-
-  // roomDataRouter
-  //   .route('/data/:room_data_id')
-  //   .all(requireAuth)
-  //   .all((req, res, next) => {
-  //     RoomDataService
-  //   .getById(
-  //       req.app.get('db'),
-  //       req.params.room_data_id
-  //     )
-  //       .then(data => {
-  //         res.data = data
-  //         next() 
-  //       })
-  //       .catch(next)
-  //   })
-  //   .get((req, res, next) => {
-  //     res.send(res.data)
-  //   })
-  //   .delete((req, res, next) => {
-  //     RoomDataService
-  //   .deleteById(
-  //     req.app.get('db'),
-  //     req.params.room_data_id
-  //   )
-  //     .then(data => {
-  //       res.data = data
-  //       next() 
-  //     })
-  //     .catch(next)
-  //   })
 
 module.exports = roomDataRouter
