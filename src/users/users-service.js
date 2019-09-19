@@ -1,6 +1,8 @@
 
 const bcrypt = require('bcryptjs')
 const xss = require('xss')
+const jwt = require('jsonwebtoken')
+const config = require('../config')
 
 const REGEX_UPPER_LOWER_NUMBER_SPECIAL = /(?=.*[0-9])(?=.*[!@#\$%\^&])[\S]+/
 
@@ -44,6 +46,34 @@ const UsersService = {
   },
   roomsByUser(knex, id) {
     return knex.from('rooms').select('*').where('user_id', id)
+  },
+
+  // Auth -- Login
+  getUserWithUserName(db, user_name) {
+    return db('cultivate_users')
+      .where({ user_name })
+      .first()
+  },
+  comparePasswords(password, hash) {
+    return bcrypt.compare(password, hash)
+  },
+  createJwt(subject, payload) {
+    return jwt.sign(payload, config.JWT_SECRET, {
+      subject,
+      expiresIn: config.JWT_EXPIRY,
+      algorithm: 'HS256',
+    })
+  },
+  verifyJwt(token) {
+    return jwt.verify(token, config.JWT_SECRET, {
+      algorithms: ['HS256'],
+    })
+  },
+  parseBasicToken(token) {
+    return Buffer
+      .from(token, 'base64')
+      .toString()
+      .split(':')
   },
 }
 

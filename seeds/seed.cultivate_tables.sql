@@ -14,7 +14,7 @@ VALUES
 
 INSERT INTO rooms (user_id, room_name, room_description)
 VALUES
-  (1, 'Example Room', 'its a room'),
+  (1, 'Example Room', 'Greenhouse 2'),
   (2, 'Room2', 'its a room'),
   (2, 'Room3', null),
   (2, 'Room4', null),

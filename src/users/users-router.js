@@ -55,6 +55,46 @@ usersRouter
     .catch(next)
   })
 
+  // Login
+  usersRouter
+  .post('/login', jsonBodyParser, (req, res, next) => {
+    const { user_name, password } = req.body
+    const loginUser = { user_name, password }
+
+    for (const [key, value] of Object.entries(loginUser))
+      if (value == null)
+        return res.status(400).json({
+          error: `Missing '${key}' in request body`
+        })
+
+    UsersService.getUserWithUserName(
+      req.app.get('db'),
+      loginUser.user_name
+    )
+      .then(dbUser => {
+        if (!dbUser)
+          return res.status(400).json({
+            error: 'Username / password combination not found',
+          })
+
+        return UsersService.comparePasswords(loginUser.password, dbUser.password)
+          .then(compareMatch => {
+            if (!compareMatch)
+              return res.status(400).json({
+                error: 'Username / password combination not found',
+              })
+
+            const sub = dbUser.user_name
+            const payload = { user_id: dbUser.user_id }
+            res.send({
+              authToken: UsersService.createJwt(sub, payload),
+              user_id: dbUser.user_id
+            })
+          })
+      })
+      .catch(next)
+  })
+
   // Get all rooms belonging to a user, by user_id
   usersRouter
     .route('/:user_id')
