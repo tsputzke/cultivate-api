@@ -44,9 +44,6 @@ const UsersService = {
       user_name: xss(user.user_name),
     }
   },
-  roomsByUser(knex, id) {
-    return knex.from('rooms').select('*').where('user_id', id)
-  },
 
   // Auth -- Login
   getUserWithUserName(db, user_name) {

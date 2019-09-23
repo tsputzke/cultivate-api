@@ -53,27 +53,10 @@ roomsRouter
         .catch(next)
   })
   
-  // Get Room data/ Delete room, by room_id
+  // Delete room by room_id
   roomsRouter
-    .route('/:room_id')
+    .route('/delete/:room_id')
     .all(requireAuth)
-    .all((req, res, next) => {
-      RoomsService
-    .dataByRoom(
-      req.app.get('db'),
-      req.params.room_id
-    )
-      .then(data => {
-        res.data = data
-        next() 
-      })
-      .catch(next)
-    })
-    .get((req, res, next) => {
-      res.send(res.data)
-      // res.json(serializeData(res.data))
-    })
-
     .delete((req, res, next) => {
       RoomsService
     .deleteRoom(
@@ -86,5 +69,25 @@ roomsRouter
       .catch(next)
     })
 
+
+  // Get all rooms belonging to a user, by user_id
+  roomsRouter
+  .route('/:user_id')
+  .all(requireAuth)
+  .all((req, res, next) => {
+    RoomsService
+  .roomsByUser(
+      req.app.get('db'),
+      req.params.user_id
+    )
+      .then(rooms => {
+        res.rooms = rooms
+        next() 
+      })
+      .catch(next)
+  })
+  .get((req, res) => {
+    res.json(res.rooms)
+  })
 
 module.exports = roomsRouter

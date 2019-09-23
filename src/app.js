@@ -7,7 +7,6 @@ const { NODE_ENV } = require('./config')
 const UsersRouter = require('./users/users-router')
 const RoomsRouter = require('./rooms/rooms-router')
 const RoomDataRouter = require('./room_data/room_data-router')
-const AuthRouter = require('./auth/auth-router')
 
 const app = express()
 
@@ -22,7 +21,6 @@ app.use(cors())
 app.use('/api/users', UsersRouter)
 app.use('/api/rooms', RoomsRouter)
 app.use('/api/room-data', RoomDataRouter)
-app.use('/api/auth', AuthRouter)
 
 
 app.get('/', (req, res) => {

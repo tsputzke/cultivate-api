@@ -15,6 +15,28 @@ const serializeData = data => ({
   comments: data.comments
 })
 
+// Get room-data by room_id
+roomDataRouter
+    .route('/:room_id')
+    .all(requireAuth)
+    .all((req, res, next) => {
+      RoomDataService
+  
+    .dataByRoom(
+      req.app.get('db'),
+      req.params.room_id
+    )
+      .then(data => {
+        res.data = data
+        next() 
+      })
+      .catch(next)
+    })
+    .get((req, res, next) => {
+      res.send(res.data)
+      // res.json(serializeData(res.data))
+    })
+
 // Add room-data
 roomDataRouter
   .route('/')
@@ -77,3 +99,5 @@ roomDataRouter
     })
 
 module.exports = roomDataRouter
+
+

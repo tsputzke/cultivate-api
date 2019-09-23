@@ -2,6 +2,14 @@ const RoomDataService = {
   getAllData(knex) {
     return knex.select('*').from('room_data')
   },
+  dataByRoom(knex, id) {
+    return knex
+      .from('room_data')
+      .select('*')
+      .where('room_id', id)
+      .orderBy('date_added', 'asc')
+      .orderBy('room_id', 'asc')
+  },
   addData(knex, newData) {
     return knex 
       .insert(newData)

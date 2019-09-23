@@ -74,14 +74,14 @@ usersRouter
       .then(dbUser => {
         if (!dbUser)
           return res.status(400).json({
-            error: 'Username / password combination not found',
+            error: "Incorrect user_name or password",
           })
 
         return UsersService.comparePasswords(loginUser.password, dbUser.password)
           .then(compareMatch => {
             if (!compareMatch)
               return res.status(400).json({
-                error: 'Username / password combination not found',
+                error: "Incorrect user_name or password",
               })
 
             const sub = dbUser.user_name
@@ -95,24 +95,5 @@ usersRouter
       .catch(next)
   })
 
-  // Get all rooms belonging to a user, by user_id
-  usersRouter
-    .route('/:user_id')
-    .all(requireAuth)
-    .all((req, res, next) => {
-      UsersService
-    .roomsByUser(
-        req.app.get('db'),
-        req.params.user_id
-      )
-        .then(rooms => {
-          res.rooms = rooms
-          next() 
-        })
-        .catch(next)
-    })
-    .get((req, res) => {
-      res.json(res.rooms)
-    })
-
 module.exports = usersRouter
+
