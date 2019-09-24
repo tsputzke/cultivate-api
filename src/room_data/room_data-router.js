@@ -69,7 +69,7 @@ roomDataRouter
   // Delete room-data
   roomDataRouter
     .route('/:room_data_id')
-    /.all(requireAuth)
+    .all(requireAuth)
     .all((req, res, next) => {
       RoomDataService
 
