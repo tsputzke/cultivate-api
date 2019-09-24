@@ -8,7 +8,7 @@ const jwt = require('jsonwebtoken')
 describe('Room Data Endpoints', function() {
   let db
 
-  const { testUsers, testRooms, testRoomData } = helpers.makeRoomsFixtures()
+  const { testUsers, testRooms, testData } = helpers.makeRoomsFixtures()
 
   function makeAuthHeader(user, secret = process.env.JWT_SECRET) {
     const token = jwt.sign({ user_id: user.user_id }, secret, {
@@ -39,33 +39,52 @@ describe('Room Data Endpoints', function() {
     return db.into('rooms').insert(testRooms)
   })
   beforeEach('insert room_data', () => {
-    return db.into('room_data').insert(testRoomData)
+    return db.into('room_data').insert(testData)
   })
 
-  describe('POST /room-data', () => {
-    context('Given there are room data in the database', () => {
-      beforeEach('insert room-data', () => {
+  describe(`GET /api/room-data/:room_id`, () => {
+    context(`Given no data`, () => {
+      it(`responds with 200 and an empty list`, () => {
+        return supertest(app)
+          .get(`/api/room-data/4`)
+          // .set('Authorization', makeAuthHeader(testUsers[3]))
+          .expect(200, [])
+      })
+    });
+
+    context('Given there are data in the room', () => {
+        it('GET /data for room 1, responds with 200', () => {
+          return supertest(app)
+            .get(`/api/room-data/1`)
+            // .set('Authorization', makeAuthHeader(testUsers[3]))
+            .expect(200, [testData[0]])
+        })
+      })
+  });
+
+  describe('POST /api/room-data', () => {
+    context('Given there are data in the database', () => {
+      beforeEach('insert data', () => {
           return db
-              .into('room-data')
+              .into('room_data')
               .set('Authorization', makeAuthHeader(testUsers[0]))
-              .insert(testRoomData)
+              .insert(testData)
       })
     })
 
     it(`responds with 401 'Missing bearer token when no basic token`, () => {
       const newData = 
       {
-        room_data_id: 1,
         room_id: 1,
-        date_added: '2019-09-01',
-        temperature: 25,
-        rh: 75,
-        co2: 400,
-        light: 100,
-        comments: 'First test comment!',
+        date_added: '2019-10-01',
+        temperature: 30,
+        rh: 85,
+        co2: 500,
+        light: 99,
+        comments: 'Insert comment here!',
       };
       return supertest(app)
-        .post(`/room-data`)
+        .post(`/api/room-data`)
         .send(newData)
         .expect(401, { error: `Missing bearer token` })
       } 
@@ -74,7 +93,7 @@ describe('Room Data Endpoints', function() {
     it(`responds 401 'Unauthorized request' when no credentials in token`, () => {
        const userNoCreds = { user_name: '', password: '' }
          return supertest(app)
-          .post(`/room-data`)
+          .post(`/api/room-data`)
           .set('Authorization', makeAuthHeader(userNoCreds))
           .expect(401, { error: `Unauthorized request` })
     })
@@ -82,92 +101,48 @@ describe('Room Data Endpoints', function() {
     it(`responds 401 'Unauthorized request' when invalid user`, () => {
       const userInvalidCreds = { user_name: 'user-not', password: 'existy' }
       return supertest(app)
-        .post(`/room-data`)
+        .post(`/api/room-data`)
         .set('Authorization', makeAuthHeader(userInvalidCreds))
         .expect(401, { error: `Unauthorized request` })
     })
 
     it('creates data, responding with 201 and new data', () => {
-      const testUser = testUsers[0]
       const newData = 
         {
-          room_data_id: 1,
           room_id: 1,
-          date_added: '2019-09-01',
-          temperature: 25,
-          rh: 75,
-          co2: 400,
-          light: 100,
-          comments: 'First test comment!',
+          date_added: '2019-10-01',
+          temperature: 30,
+          rh: 85,
+          co2: 500,
+          light: 99,
+          comments: 'Insert comment here!',
         }
       return supertest(app)
-        .post('/room-data')
+        .post('/api/room-data')
         .send(newData)
         .set('Authorization', makeAuthHeader(testUsers[0]))
         .expect(201)
-        .expect(res => {
-          expect(res.body.room_id).to.eql(newData.room_id)
-          expect(res.body.temperature).to.eql(newData.temperature)
-          expect(res.body.rh).to.eql(newData.rh)
-          expect(res.body.co2).to.eql(newData.co2)
-          expect(res.body.light).to.eql(newData.light)
-          expect(res.body.comments).to.eql(newData.comments)
-          expect(res.body).to.have.property('room_data_id')
-          expect(res.headers.location).to.eql(`/room-data/${res.body.id}`)
-        })
-        .expect(res =>
-          db
-            .from('room_data')
-            .select('*')
-            .where({ room_data_id: res.body. room_data_id })
-            .first()
-            .then(row => {
-              expect(res.body.room_id).to.eql(newData.room_id)
-              expect(res.body.temperature).to.eql(newData.temperature)
-              expect(res.body.rh).to.eql(newData.rh)
-              expect(res.body.co2).to.eql(newData.co2)
-              expect(res.body.light).to.eql(newData.light)
-              expect(res.body.comments).to.eql(newData.comments)
-              const expectedDate = new Date().toLocaleString('en', { timeZone: 'UTC' })
-              const actualDate = new Date(row.date_added).toLocaleString()
-              expect(actualDate).to.eql(expectedDate)
-            })
-      )
   })
 })
 
-  // describe('DELETE /reviews/:reviewId', () => { 
-  //   context('Given no reviews', () => {
-  //     it('responds with 404 not found', () => {
-  //       const reviewId = 123456;
-  //       return supertest(app)
-  //         .delete(`/reviews/${reviewId}`)
-  //         .set('Authorization', makeAuthHeader(testUsers[0]))
-  //         .expect(404, { error: { message: `Review doesn't exist`} })
-  //     })
-  //   })
-  //   context('Given there are reviews in the database', () => {
-  //     const testReviews = helpers.makeReviewsArray()
+  describe('DELETE /api/room-data/:room_data_id', () => { 
+    context('Given there are data in the database', () => {
 
-  //     beforeEach('insert reviews', () => {
-  //       return db.into('sip_rate_reviews').insert(testReviews)
-  //     })
-
-  //     it('responds with 204 and removes the review', () => {
-  //       const reviewToDelete = 1;
-  //       const expectedReviews = testReviews.filter(
-  //         review => review.id !== reviewToDelete
-  //       );
-  //       return supertest(app)
-  //         .delete(`/reviews/${reviewToDelete}`)
-  //         .expect(204)
-  //         .set('Authorization', makeAuthHeader(testUsers[0]))
-  //         .then(res =>
-  //           supertest(app)
-  //             .get('/reviews')
-  //             .expect(expectedReviews)
-  //           )
-  //     })
-  //   })
-  // })
+      it('responds with 204 and removes the room-data', () => {
+        const roomDataToDelete = 1;
+        const expectedData = testData.filter(
+          roomData => roomData.room_data_id !== roomDataToDelete
+        );
+        return supertest(app)
+          .delete(`/api/room-data/${roomDataToDelete}`)
+          .expect(204)
+          // .set('Authorization', makeAuthHeader(testUsers[0]))
+          .then(res =>
+            supertest(app)
+              .get('/api/room-data')
+              .expect(expectedData)
+            )
+      })
+    })
+  })
 })
