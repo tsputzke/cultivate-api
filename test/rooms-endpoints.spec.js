@@ -17,7 +17,7 @@ describe('Room Endpoints', function() {
     })
     return `bearer ${token}`
   }
-  console.log(makeAuthHeader(testUsers[3]))
+ 
   before('make knex instance', () => {
     db = knex({
       client: 'pg',
@@ -39,68 +39,25 @@ describe('Room Endpoints', function() {
     return db.into('rooms').insert(testRooms)
   })
 
-  describe(`GET /api/users/:user_id`, () => {
+  describe(`GET /api/rooms/:user_id`, () => {
     context(`Given no rooms`, () => {
       it(`responds with 200 and an empty list`, () => {
         return supertest(app)
-          .get(`/api/users/4`)
+          .get(`/api/rooms/4`)
           .set('Authorization', makeAuthHeader(testUsers[3]))
           .expect(200, [])
       })
     });
 
-    // context('Given there are rooms in the database', () => {
-    //     it('GET /reviews responds with 200 and the rooms for user 4', () => {
-    //       return supertest(app)
-    //         .get(`/api/users/4`)
-    //         .set('Authorization', makeAuthHeader(testUsers[3]))
-    //         .expect(200, testRooms)
-    //     })
-    //   })
+    context('Given there are rooms in the database', () => {
+        it('GET /rooms for user 3, responds with 200', () => {
+          return supertest(app)
+            .get(`/api/rooms/1`)
+            .set('Authorization', makeAuthHeader(testUsers[3]))
+            .expect(200, [testRooms[0]])
+        })
+      })
   });
-
-  // describe('GET /reviews/:reviewId responds with 200 and all the reviews', () => {
-  //   context('Given no reviews', () => {
-  //     it('responds with 404 not found', () => {
-  //       const reviewId = 123456;
-  //       return supertest(app)
-  //         .get(`/reviews/${reviewId}`)
-  //         .set('Authorization', makeAuthHeader(testUsers[0]))
-  //         .expect(404, {error: {message: `Review doesn't exist`} })
-  //     })
-  //   })
-
-  //   context('Given there are reviews in the database', () => {
-  //     const testReview = [
-  //       {
-  //         id: 1,
-  //         bev_type: 'test type',
-  //         bev_name:'test name',
-  //         user_review: 'First test review!',
-  //         rating: 2,
-  //         bev_id: 'apothicdark20124',
-  //         user_id: 1,
-  //         date_created: '2029-01-22T16:28:32.615Z',
-  //       }
-  //     ];
-
-  //     beforeEach('insert review', () => {
-  //       return db.into('sip_rate_reviews').insert(testReview)
-  //     })
-
-  //     it('responds with 200 and the specified review', () => {
-  //       const reviewId = 1;
-  //       const expectedReview = testReview[reviewId -1];
-  //       return supertest(app)
-  //         .get(`/reviews/${reviewId}`)
-  //         .set('Authorization', makeAuthHeader(testUsers[0]))
-  //         .expect(200, expectedReview)
-  //     })
-  //   })
-  // })
-
-
-
 
   describe('POST /api/rooms', () => {
     context('Given there are rooms in the database', () => {
@@ -142,70 +99,39 @@ describe('Room Endpoints', function() {
         .expect(401, { error: `Unauthorized request` })
     })
 
-  //   it('creates room, responding with 201 and new room', () => {
-  //     const newRoom = 
-  //       {
-  //         user_id: 1,
-  //         room_name: 'test-room-5',
-  //         room_description: 'Lorem ipsum dolor sit amet'
-  //       }
-  //     return supertest(app)
-  //       .post('/api/rooms')
-  //       .send(newRoom)
-  //       .set('Authorization', makeAuthHeader(testUsers[0]))
-  //       .expect(201)
-  //       .expect(res => {
-  //         expect(res.body.user_id).to.eql(newData.user_id)
-  //         expect(res.body.room_name).to.eql(newData.room_name)
-  //         expect(res.body.room_description).to.eql(newData.room_description)
-  //         expect(res.body).to.have.property('room_id')
-  //       })
-  //       .expect(res =>
-  //         db
-  //           .from('rooms')
-  //           .select('*')
-  //           .where({ room_id: res.body. room_id })
-  //           .first()
-  //           .then(row => {
-  //             expect(res.body.user_id).to.eql(newData.user_id)
-  //             expect(res.body.room_name).to.eql(newData.room_name)
-  //             expect(res.body.room_description).to.eql(newData.room_description)
-  //           })
-  //     )
-  // })
+    it('creates room, responding with 201 and new room', () => {
+      const newRoom = 
+        {
+          user_id: 1,
+          room_name: 'test-room-5',
+          room_description: 'Lorem ipsum dolor sit amet'
+        }
+      return supertest(app)
+        .post('/api/rooms')
+        .send(newRoom)
+        .set('Authorization', makeAuthHeader(testUsers[0]))
+        .expect(201)
+  })
 })
 
-  // describe('DELETE /api/rooms', () => { 
-  //   context('Given no rooms', () => {
-  //     it('responds with 404 not found', () => {
-  //       const roomId = 123456;
-  //       return supertest(app)
-  //         .delete(`/api/rooms/${roomId}`)
-  //         .set('Authorization', makeAuthHeader(testUsers[0]))
-  //         .expect(404, { error: { message: `Room doesn't exist`} })
-  //     })
-  //   })
-  //   context('Given there are rooms in the database', () => {
+  describe('DELETE /api/rooms', () => { 
+    context('Given there are rooms in the database', () => {
 
-  //     beforeEach('insert room', () => {
-  //       return db.into('rooms').insert(testRooms)
-  //     })
-
-  //     it('responds with 204 and removes the room', () => {
-  //       const roomToDelete = 1;
-  //       const exectedRooms = rooms.filter(
-  //         room => room.room_id !== roomToDelete
-  //       );
-  //       return supertest(app)
-  //         .delete(`/api/rooms/${roomToDelete}`)
-  //         .expect(204)
-  //         .set('Authorization', makeAuthHeader(testUsers[0]))
-  //         .then(res =>
-  //           supertest(app)
-  //             .get('/api/rooms')
-  //             .expect(exectedRooms)
-  //           )
-  //     })
-  //   })
-  // })
+      it('responds with 204 and removes the room', () => {
+        const roomToDelete = 1;
+        const exectedRooms = testRooms.filter(
+          room => room.room_id !== roomToDelete
+        );
+        return supertest(app)
+          .delete(`/api/rooms/delete/${roomToDelete}`)
+          .expect(204)
+          .set('Authorization', makeAuthHeader(testUsers[0]))
+          .then(res =>
+            supertest(app)
+              .get('/api/rooms')
+              .expect(exectedRooms)
+            )
+      })
+    })
+  })
 }) 

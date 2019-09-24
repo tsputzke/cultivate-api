@@ -13,6 +13,26 @@ const serializeRoom = room => ({
   room_description: room.room_description,
 })
 
+  // Get all rooms belonging to a user, by user_id
+  roomsRouter
+  .route('/:user_id')
+  .all(requireAuth)
+  .all((req, res, next) => {
+    RoomsService
+  .roomsByUser(
+      req.app.get('db'),
+      req.params.user_id
+    )
+      .then(rooms => {
+        res.rooms = rooms
+        next() 
+      })
+      .catch(next)
+  })
+  .get((req, res) => {
+    res.json(res.rooms)
+  })
+
 // Add room
 roomsRouter
   .route('/')
@@ -47,7 +67,6 @@ roomsRouter
         .then(room => (
           res 
             .status(201)
-            // .location(path.posix.join(req.originalUrl, `/${room.room_id}`))
             .json(serializeRoom(room))
         ))
         .catch(next)
@@ -68,26 +87,5 @@ roomsRouter
       })
       .catch(next)
     })
-
-
-  // Get all rooms belonging to a user, by user_id
-  roomsRouter
-  .route('/:user_id')
-  .all(requireAuth)
-  .all((req, res, next) => {
-    RoomsService
-  .roomsByUser(
-      req.app.get('db'),
-      req.params.user_id
-    )
-      .then(rooms => {
-        res.rooms = rooms
-        next() 
-      })
-      .catch(next)
-  })
-  .get((req, res) => {
-    res.json(res.rooms)
-  })
 
 module.exports = roomsRouter
