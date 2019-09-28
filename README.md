@@ -1,26 +1,51 @@
-# Express Boilerplate!
+# Cultivate - Node Capstone
+A data logging application to track the environmental factors important in plant and mushroom grow spaces.
 
-This is a boilerplate project used for starting new projects!
+## Working Prototype
 
-## Set up
+View Live App here: [Cultivate](https://tsputzke-cultivate-app.now.sh)  
+View Node working prototype here: [Cultivate - API](https://pure-castle-83890.herokuapp.com) 
 
-Complete the following steps to start a new project (NEW-PROJECT-NAME):
+## Summary
+Cultivate is a grow-room tracking application designed to keep your plant and fungi data organized.
 
-1. Clone this repository to your local machine `git clone BOILERPLATE-URL NEW-PROJECTS-NAME`
-2. `cd` into the cloned repository
-3. Make a fresh start of the git history for this project with `rm -rf .git && git init`
-4. Install the node dependencies `npm install`
-5. Move the example Environment file to `.env` that will be ignored by git and read by the express server `mv example.env .env`
-6. Edit the contents of the `package.json` to use NEW-PROJECT-NAME instead of `"name": "express-boilerplate",`
+As a user you can create rooms which store data, including: temperature, RH, CO2, Light levels, and comments. Quickly view data in a line graph, as well as weekly highs and lows. 
 
-## Scripts
+## Designs
 
-Start the application `npm start`
+**Landing Page** 
 
-Start nodemon for the application `npm run dev`
+![Landing Page Design](src/readme-images/Cultivate-landing.png)
 
-Run the tests `npm test`
+**Grow-Room View Page** 
 
-## Deploying
+![Grow-room Page Design](src/readme-images/Cultivate-show-room.png)
 
-When your new project is ready for deployment, add a new Heroku application with `heroku create`. This will make a new git remote called "heroku" and you can then `npm run deploy` which will push to this remote's master branch.
+## Technical
+
+Cultivate was built with: 
+
+#### Front End
+
+* HTML5
+* CSS3
+* JavaScript 
+* React
+
+#### Back End 
+
+* Node.js 
+* Express.js
+* PostgreSQL
+* Mocha and Chai for testing
+
+## Node command lines
+* npm install ==> install all node modules
+* nodemon server.js ==> run node server
+* npm test ==> run the tests
+
+## React command lines
+* npm install ==> install all node modules
+* npm run build ==> build the react files in the "build" folder
+* npm start ==> run react server on http://127.0.0.1:8080
+* npm test ==> run the tests
