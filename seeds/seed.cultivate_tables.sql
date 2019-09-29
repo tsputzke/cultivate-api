@@ -90,6 +90,6 @@ INSERT INTO room_data (
   ( 5, '2019-07-25', 31, 85, 500, 85, 'harvested strawberries!'),
   ( 5, '2019-07-21', 32, 81, 500, 98, 'added mulch around Japanese maple'),
   ( 5, '2019-07-18', 30, 84, 500, 100, null),
-  ( 5, '2019-07-15', 32, 88, 500, 103, 'Seeded kale for fall'),
+  ( 5, '2019-07-15', 32, 88, 500, 103, 'Seeded kale for fall');
 
 COMMIT;
