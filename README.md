@@ -1,51 +1,152 @@
-# Cultivate - Node Capstone
-A data logging application to track the environmental factors important in plant and mushroom grow spaces.
+# User
+Posts new user to 'cultivate_users' database. 
+Logs in existing user and returns JWT token and user_id.
 
-## Working Prototype
+## URL
 
-View Live App here: [Cultivate](https://tsputzke-cultivate-app.now.sh)  
-View Node working prototype here: [Cultivate - API](https://pure-castle-83890.herokuapp.com) 
+Route to post new user/ login:
+https://pure-castle-83890.herokuapp.com/api/users [+ /login]
 
-## Summary
-Cultivate is a grow-room tracking application designed to keep your plant and fungi data organized.
+## Method:
 
-As a user you can create rooms which store data, including: temperature, RH, CO2, Light levels, and comments. Quickly view data in a line graph, as well as weekly highs and lows. 
+POST
 
-## Designs
+## URL Params
 
-**Landing Page** 
+## Required:
 
-![Landing Page Design](src/readme-images/Cultivate-landing.png)
+None
 
-**Grow-Room View Page** 
+## Data Params
 
-![Grow-room Page Design](src/readme-images/Cultivate-show-room.png)
+None
 
-## Technical
+## Success Response:
 
-Cultivate was built with: 
+Code: 201 Created
 
-#### Front End
+## Error Response:
 
-* HTML5
-* CSS3
-* JavaScript 
-* React
+Code: 400 Bad Request
 
-#### Back End 
+## Sample Call:
 
-* Node.js 
-* Express.js
-* PostgreSQL
-* Mocha and Chai for testing
+  ```
+  fetch('https://pure-castle-83890.herokuapp.com/api/users' [+ '/login'], {
+    method: 'POST',
+    headers: {
+      'content-type': 'application/json',
+    },
+    body: JSON.stringify({ user_name, password }),
+  });
+  ```
 
-## Node command lines
-* npm install ==> install all node modules
-* nodemon server.js ==> run node server
-* npm test ==> run the tests
+# Room
+Return all rooms belonging to a user.
+Adds room to database.
+Deletes room from database.
 
-## React command lines
-* npm install ==> install all node modules
-* npm run build ==> build the react files in the "build" folder
-* npm start ==> run react server on http://127.0.0.1:8080
-* npm test ==> run the tests
+## URL
+
+Route to get rooms, by user_id (GET):
+https://pure-castle-83890.herokuapp.com/api/rooms/:user_id
+
+Route to add room (POST):
+https://pure-castle-83890.herokuapp.com/api/rooms
+
+Route to delete room, by room_id (DELETE):
+https://pure-castle-83890.herokuapp.com/api/rooms/delete/:room_id
+
+## Method:
+
+GET / POST / DELETE
+
+## URL Params
+
+## Required:
+
+None
+
+## Data Params
+
+None
+
+## Success Response:
+
+New Room:
+Code: 201 Created
+
+Delete room:
+Code: 204 No Content
+
+## Error Response:
+
+Code: 400 Bad Request
+
+## Sample Call:
+
+  ```
+  fetch('https://pure-castle-83890.herokuapp.com/api/rooms', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'authorization': `bearer ${TokenService.getAuthToken()}`,
+    },
+    body: JSON.stringify(newRoomObject),
+  })
+  ```
+
+# Room-Data
+Return room data by room_id.
+Add room data from database.
+Deletes room data from database.
+
+## URL
+
+Route to get room data, by room_id (GET):
+https://pure-castle-83890.herokuapp.com/api/room-data/:room_id
+
+Route to add room-data (POST):
+https://pure-castle-83890.herokuapp.com/api/room-data
+
+Route to delete room data, by room_data_id (DELETE):
+https://pure-castle-83890.herokuapp.com/api/rooms/delete/:room_data_id
+
+## Method:
+
+GET / POST / DELETE
+
+## URL Params
+
+## Required:
+
+None
+
+## Data Params
+
+None
+
+## Success Response:
+
+New Room Data:
+Code: 201 Created
+
+Delete Room Data:
+Code: 204 No Content
+
+## Error Response:
+
+Code: 400 Bad Request
+
+## Sample Call:
+
+  ```
+  fetch('https://pure-castle-83890.herokuapp.com/api/room-data', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'authorization': `bearer ${TokenService.getAuthToken()}`,
+    },
+    body: JSON.stringify(newDataObject),
+  })
+  ```
